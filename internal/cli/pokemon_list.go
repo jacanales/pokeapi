@@ -31,6 +31,8 @@ func getPokemonListFn(repository domain.PokemonRepository) CobraFn {
     return func(cmd *cobra.Command, args []string) {
 
         fmt.Println("Pokemon list: ")
-        repository.GetPokemons()
+        list, _ := repository.GetPokemons(pokemonsEndpoint)
+
+        fmt.Println(list)
     }
 }

@@ -82,7 +82,14 @@ type Pokemon struct {
     Weight                 int           `json:"weight"`
 }
 
+type PokemonListResult struct {
+    Count    int    `json:"count"`
+    Previous string `json:"previous"`
+    Next     string `json:"next"`
+    Results  []Url  `json:"results"`
+}
+
 // PokemonRepository definition of methods to access pokemon's data
 type PokemonRepository interface {
-    GetPokemons() ([]Pokemon, error)
+    GetPokemons(e string) ([]Url, error)
 }
