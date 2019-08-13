@@ -93,3 +93,14 @@ type PokemonListResult struct {
 type PokemonRepository interface {
     GetPokemons(e string) ([]Url, error)
 }
+
+type WriteRepository interface {
+    StorePokemonList(l []Url) error
+}
+
+func (u Url) ConvertToArray() (list []string) {
+    list = append(list, u.Name)
+    list = append(list, u.Url)
+
+    return
+}

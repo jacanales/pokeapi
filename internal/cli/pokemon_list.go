@@ -4,7 +4,9 @@ import (
     "fmt"
     "github.com/jacanales/pokeapi/internal/domain"
     "github.com/jacanales/pokeapi/internal/storage/pokeapi"
+    "github.com/jacanales/pokeapi/internal/storage/csv"
     "github.com/spf13/cobra"
+    "log"
 )
 
 const (
@@ -12,27 +14,33 @@ const (
 )
 
 func init() {
-    var repo domain.PokemonRepository
-    repo = pokeapi.NewPokemonRepository()
+    var read domain.PokemonRepository
+    var write domain.WriteRepository
 
-    rootCmd.AddCommand(initPokemonListCmd(repo))
+    read = pokeapi.NewPokemonRepository()
+    write = csv.NewWriteListRepository()
+
+    rootCmd.AddCommand(initPokemonListCmd(read, write))
 }
 
-func initPokemonListCmd(repository domain.PokemonRepository) *cobra.Command {
+func initPokemonListCmd(read domain.PokemonRepository, write domain.WriteRepository) *cobra.Command {
     pokemonListCmd := &cobra.Command{
         Use: "pokemon",
-        Run: getPokemonListFn(repository),
+        Run: getPokemonListFn(read, write),
     }
 
     return pokemonListCmd
 }
 
-func getPokemonListFn(repository domain.PokemonRepository) CobraFn {
+func getPokemonListFn(read domain.PokemonRepository, write domain.WriteRepository) CobraFn {
     return func(cmd *cobra.Command, args []string) {
 
         fmt.Println("Pokemon list: ")
-        list, _ := repository.GetPokemons(pokemonsEndpoint)
+        list, _ := read.GetPokemons(pokemonsEndpoint)
 
-        fmt.Println(list)
+        err := write.StorePokemonList(list)
+        if nil != err {
+            log.Fatal(err)
+        }
     }
 }
