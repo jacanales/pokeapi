@@ -1,6 +1,7 @@
 package cli
 
 import (
+    "fmt"
     "github.com/jacanales/pokeapi/internal/domain"
     "github.com/jacanales/pokeapi/internal/storage/csv"
     gocsv "github.com/jacanales/pokeapi/internal/storage/csv"
@@ -73,13 +74,34 @@ func getPokemonsInfoFn(read domain.PokemonRepository, write domain.PokemonInfoRe
 
         list, _ := read.GetPokemons()
 
+        p := make(chan domain.Pokemon)
+        done := make(chan bool)
+
         for _, value := range list {
-            info, err := read.GetPokemonInfo(value)
-            if nil  != err  {
-                return
+            go func(value domain.Url, p chan domain.Pokemon, done chan bool) {
+                info, err := read.GetPokemonInfo(value)
+                if nil != err {
+                    fmt.Println(err.Error())
+
+                    return
+                }
+
+                p <- info
+            }(value, p, done)
+        }
+
+        i := 0
+        for i <= len(list) {
+            select {
+            case <-p:
+                fmt.Print("Write")
+                _ = write.StorePokemonInfo(<-p)
+                done <- true
+
+            case <-done:
+                i++
             }
 
-            _ = write.StorePokemonInfo(info)
         }
     }
 }

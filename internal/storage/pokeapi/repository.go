@@ -45,10 +45,11 @@ func (p *pokemonRepository) GetPokemonInfo(pokemonUrl pokemon.Url) (pokemonInfo 
 func (p *pokemonRepository) parseJsonResponse(uri string, t interface{}) (err error) {
     response, err := http.Get(uri)
     defer closeResponseBody(response)
-
     if err != nil {
         return err
     }
+
+    fmt.Println(response.StatusCode)
 
     contents, err := ioutil.ReadAll(response.Body)
     if err != nil {
