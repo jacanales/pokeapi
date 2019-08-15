@@ -53,12 +53,12 @@ func (w writeListRepository) StorePokemonList(l []pokemon.Url) error {
     return nil
 }
 
+
 func (w writeListRepository) StorePokemonInfo(p pokemon.Pokemon) error {
     var file *os.File
     var err error
 
     if _, err := os.Stat(CsvFile); err == nil {
-        fmt.Println("open")
         file, err = os.OpenFile(CsvFile, os.O_RDWR|os.O_TRUNC, os.ModeAppend)
         if nil != err {
             fmt.Println(err.Error())

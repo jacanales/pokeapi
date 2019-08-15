@@ -9,6 +9,7 @@ import (
     s2c "github.com/jacanales/pokeapi/internal/storage/struct2csv"
     "github.com/spf13/cobra"
     "log"
+    "sync"
 )
 
 func init() {
@@ -83,25 +84,31 @@ func getPokemonsInfoFn(read domain.PokemonRepository, write domain.PokemonInfoRe
                 if nil != err {
                     fmt.Println(err.Error())
 
+                    done <- true
                     return
                 }
 
+                fmt.Println("in")
                 p <- info
             }(value, p, done)
         }
 
         i := 0
-        for i <= len(list) {
+        var mutex = &sync.RWMutex{}
+
+        for i < len(list) {
             select {
-            case <-p:
-                fmt.Print("Write")
-                _ = write.StorePokemonInfo(<-p)
-                done <- true
+            case pok := <-p:
+                fmt.Print(pok.Name)
+                mutex.RLock()
+                _ = write.StorePokemonInfo(pok)
+                mutex.RUnlock()
+
+                i++
 
             case <-done:
-                i++
+                fmt.Print("Done")
             }
-
         }
     }
 }

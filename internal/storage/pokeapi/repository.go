@@ -49,8 +49,6 @@ func (p *pokemonRepository) parseJsonResponse(uri string, t interface{}) (err er
         return err
     }
 
-    fmt.Println(response.StatusCode)
-
     contents, err := ioutil.ReadAll(response.Body)
     if err != nil {
         return err
