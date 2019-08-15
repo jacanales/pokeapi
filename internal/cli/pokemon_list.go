@@ -88,7 +88,6 @@ func getPokemonsInfoFn(read domain.PokemonRepository, write domain.PokemonInfoRe
                     return
                 }
 
-                fmt.Println("in")
                 p <- info
             }(value, p, done)
         }
@@ -99,7 +98,6 @@ func getPokemonsInfoFn(read domain.PokemonRepository, write domain.PokemonInfoRe
         for i < len(list) {
             select {
             case pok := <-p:
-                fmt.Print(pok.Name)
                 mutex.RLock()
                 _ = write.StorePokemonInfo(pok)
                 mutex.RUnlock()
