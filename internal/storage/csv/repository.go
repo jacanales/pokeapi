@@ -2,6 +2,7 @@ package csv
 
 import (
     "encoding/csv"
+    "fmt"
     pokemon "github.com/jacanales/pokeapi/internal/domain"
     "os"
 )
@@ -53,9 +54,22 @@ func (w writeListRepository) StorePokemonList(l []pokemon.Url) error {
 }
 
 func (w writeListRepository) StorePokemonInfo(p pokemon.Pokemon) error {
-    file, err := os.Create(CsvFile)
-    if nil != err {
-        return err
+    var file *os.File
+    var err error
+
+    if _, err := os.Stat(CsvFile); err == nil {
+        fmt.Println("open")
+        file, err = os.OpenFile(CsvFile, os.O_RDWR|os.O_TRUNC, os.ModeAppend)
+        if nil != err {
+            fmt.Println(err.Error())
+            return err
+        }
+    } else if os.IsNotExist(err) {
+        file, err = os.Create(CsvFile)
+        if nil != err {
+            fmt.Println(err.Error())
+            return err
+        }
     }
 
     defer func() {

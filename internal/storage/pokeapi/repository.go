@@ -24,7 +24,7 @@ func NewPokemonRepository() pokemon.PokemonRepository {
 func (p *pokemonRepository) GetPokemons() (pokemonList []pokemon.Url, err error) {
     var url string
     var pokemonListResult pokemon.PokemonListResult
-    url = fmt.Sprintf("%v%v?offset=0&limit=10", EntryPoint, PokemonsEndpoint)
+    url = fmt.Sprintf("%v%v?offset=0&limit=2", EntryPoint, PokemonsEndpoint)
 
     err = p.parseJsonResponse(url, &pokemonListResult)
 
@@ -44,6 +44,8 @@ func (p *pokemonRepository) GetPokemonInfo(pokemonUrl pokemon.Url) (pokemonInfo 
 
 func (p *pokemonRepository) parseJsonResponse(uri string, t interface{}) (err error) {
     response, err := http.Get(uri)
+    defer closeResponseBody(response)
+
     if err != nil {
         return err
     }
@@ -61,4 +63,11 @@ func (p *pokemonRepository) parseJsonResponse(uri string, t interface{}) (err er
     }
 
     return
+}
+
+func closeResponseBody(r *http.Response) {
+    err := r.Body.Close()
+    if nil != err {
+        fmt.Print(err.Error())
+    }
 }
