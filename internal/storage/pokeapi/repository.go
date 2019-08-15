@@ -1,15 +1,16 @@
 package pokeapi
 
 import (
-    "encoding/json"
     "fmt"
     pokemon "github.com/jacanales/pokeapi/internal/domain"
+    "github.com/json-iterator/go"
     "io/ioutil"
     "net/http"
 )
 
 const (
     EntryPoint = "http://pokeapi.co/api/v2"
+    PokemonsEndpoint = "/pokemon"
 )
 
 type pokemonRepository struct {
@@ -20,26 +21,44 @@ func NewPokemonRepository() pokemon.PokemonRepository {
     return &pokemonRepository{EntryPoint}
 }
 
-func (p *pokemonRepository) GetPokemons(endpoint string) (pokemonList []pokemon.Url, err error) {
-    response, err := http.Get(fmt.Sprintf("%v%v", EntryPoint, endpoint))
+func (p *pokemonRepository) GetPokemons() (pokemonList []pokemon.Url, err error) {
+    var url string
+    var pokemonListResult pokemon.PokemonListResult
+    url = fmt.Sprintf("%v%v?offset=0&limit=10", EntryPoint, PokemonsEndpoint)
+
+    err = p.parseJsonResponse(url, &pokemonListResult)
+
+    pokemonList = pokemonListResult.Results
+
+    return
+}
+
+func (p *pokemonRepository) GetPokemonInfo(pokemonUrl pokemon.Url) (pokemonInfo pokemon.Pokemon, err error) {
+    var url string
+    url = fmt.Sprintf("%s", pokemonUrl.Url)
+
+    err = p.parseJsonResponse(url, &pokemonInfo)
+
+    return
+}
+
+func (p *pokemonRepository) parseJsonResponse(uri string, t interface{}) (err error) {
+    response, err := http.Get(uri)
     if err != nil {
-        return nil, err
+        return err
     }
 
     contents, err := ioutil.ReadAll(response.Body)
     if err != nil {
-        return nil, err
+        return err
     }
 
-    var pokemonListResult pokemon.PokemonListResult
+    var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-    err = json.Unmarshal(contents, &pokemonListResult)
+    err = json.Unmarshal(contents, &t)
     if err != nil {
-        fmt.Println(err.Error())
-        return nil, err
+        return err
     }
-
-    pokemonList = pokemonListResult.Results
 
     return
 }

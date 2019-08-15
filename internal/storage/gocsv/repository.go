@@ -1,4 +1,4 @@
-package csv
+package gocsv
 
 import (
     "encoding/csv"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-    CsvFile = "/tmp/pokemon_list.csv"
+    File = "/tmp/pokemon_list.csv"
 )
 
 type PokemonRow struct {
@@ -25,7 +25,7 @@ func NewWriteListRepository () pokemon.WriteRepository {
 }
 
 func (w writeListRepository) StorePokemonList(l []pokemon.Url) error {
-    file, err := os.Create(CsvFile)
+    file, err := os.Create(File)
     if nil != err {
         return err
     }

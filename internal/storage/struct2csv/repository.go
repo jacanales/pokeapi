@@ -1,4 +1,4 @@
-package csv
+package struct2csv
 
 import (
     pokemon "github.com/jacanales/pokeapi/internal/domain"

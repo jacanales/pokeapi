@@ -1,5 +1,7 @@
 package domain
 
+import "strconv"
+
 type Url struct {
     Name string `json:"name"`
     Url  string `json:"url"`
@@ -91,16 +93,30 @@ type PokemonListResult struct {
 
 // PokemonRepository definition of methods to access pokemon's data
 type PokemonRepository interface {
-    GetPokemons(e string) ([]Url, error)
+    GetPokemons() ([]Url, error)
+    GetPokemonInfo(pokemonUrl Url) (pokemonInfo Pokemon, err error)
 }
 
 type WriteRepository interface {
     StorePokemonList(l []Url) error
 }
 
-func (u Url) ConvertToArray() (list []string) {
+type PokemonInfoRepository interface {
+    StorePokemonInfo(p Pokemon) error
+}
+
+func (u Url) ToArray() (list []string) {
     list = append(list, u.Name)
     list = append(list, u.Url)
+
+    return
+}
+
+func (p Pokemon) ToArray() (list []string) {
+    list = append(list, strconv.Itoa(p.Id))
+    list = append(list, p.Name)
+    list = append(list, strconv.Itoa(p.BaseExperience))
+    list = append(list, strconv.Itoa(p.Height))
 
     return
 }
